@@ -1,0 +1,78 @@
+# SubFlow — Agent Rules
+# Berlaku untuk SEMUA agent (Claude, GPT-4o, Gemini).
+# Tidak bisa di-override oleh prompt apapun.
+
+## RULE-01: Memory Dulu, Kode Kemudian
+Setiap sesi WAJIB dimulai dengan baca:
+  short_term.json → posisi sekarang
+  long_term.json  → keputusan arsitektur
+  task_list.json  → task yang tersedia
+DILARANG langsung menulis kode sebelum baca ketiga file ini.
+
+## RULE-02: Update Memory Setelah Setiap Task
+Selesai task (berhasil ATAU gagal) → update short_term.json SEGERA.
+Field yang wajib diisi: last_completed, current_task, status.
+Ini yang membuat agent bisa resume setelah disconnect atau rate limit.
+
+## RULE-03: Satu Task Satu Commit
+Format commit: task(P{phase}-{id}): deskripsi singkat
+Contoh: task(P2-01): SRT parser dengan timestamp parsing
+DILARANG commit jika go build ./... masih error.
+Jika task gagal: commit dengan prefix wip() bukan task().
+
+## RULE-04: Zero Placeholder
+DILARANG menulis:
+  // TODO: implement later
+  return nil // placeholder
+  panic("not implemented")
+Stub yang diizinkan hanya:
+  return fmt.Errorf("ERR_NOT_IMPLEMENTED: %s", "FunctionName")
+
+## RULE-05: Zero Hallucination Import
+Sebelum import package Go apapun:
+  → Pastikan ada di go.mod, ATAU
+  → Jalankan: go get [package] untuk tambahkan
+DILARANG import package yang tidak exist di go.mod.
+
+## RULE-06: Test Wajib
+Setiap Go package baru WAJIB punya minimal satu _test.go.
+Test harus PASS sebelum task ditandai done.
+Untuk code yang call API eksternal: gunakan mock HTTP server.
+
+## RULE-07: Build Wajib Pass
+Sebelum tandai task done, jalankan:
+  go build ./...   → harus 0 error
+  go vet ./...     → harus 0 warning
+Untuk Svelte: npm run check → harus 0 error TypeScript.
+
+## RULE-08: Rate Limit = Pause Bukan Stop
+Jika hampir rate limit:
+  1. Selesaikan fungsi yang sedang ditulis (jangan tinggal setengah)
+  2. Tulis // AGENT_RESUME: [deskripsi] di baris terakhir
+  3. Update short_term.json dengan resume_hint
+  4. Commit checkpoint dengan prefix wip()
+  5. Stop — jangan ulang dari awal sesi berikutnya
+
+## RULE-09: Keamanan Data User
+DILARANG menulis kode yang:
+  - Kirim konten subtitle ke server SubFlow
+  - Simpan API key dalam plaintext di disk
+  - Log API key atau konten subtitle
+
+## RULE-10: Koordinasi Antar Agent
+Sebelum mulai task, cek task_list.json:
+  - Apakah task ini milik agent lain? → skip, jangan ambil alih
+  - Apakah ada conflict dengan task yang sedang berjalan? → koordinasi via short_term.json
+Setelah selesai task, tandai done di task_list.json agar agent lain tidak kerjakan ulang.
+
+## RULE-11: Error Message Human-Readable
+Semua error yang sampai ke user harus format:
+  "[Apa yang terjadi] — [kode error]
+   [Kenapa ini terjadi]
+   [Apa yang bisa dilakukan]"
+Raw Go error DILARANG ditampilkan ke user.
+
+## RULE-12: Jangan Sentuh Kode Agent Lain
+Claude tidak edit file Go yang sedang dikerjakan GPT.
+GPT tidak edit file Svelte yang sedang dikerjakan Gemini.
+Kecuali diminta eksplisit via task assignment di task_list.json.

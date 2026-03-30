@@ -1,0 +1,35 @@
+# Build outputs
+build/
+dist/
+frontend/dist/
+frontend/node_modules/
+*.exe
+*.test
+*.out
+coverage.out
+subflow
+SubFlow
+
+# Wails generated bindings (auto-generated, not committed)
+frontend/wailsjs/
+
+# Environment & secrets
+.env
+*.env
+.env.local
+
+# Python venv
+.venv/
+
+# Agent cache — DO NOT commit (regeneratable)
+agent/cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/settings.json
+*.swp
+*.swo

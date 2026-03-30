@@ -1,0 +1,74 @@
+{
+  "agent_system": "SubFlow Multi-Agent v2",
+  "project": "SubFlow",
+  "stack": "Go 1.22 + Wails v2 + Svelte + SQLite + faster-whisper",
+
+  "agents": {
+    "claude":  { "role": "Arsitek & Reviewer", "file": "agent/agents/claude.md" },
+    "gpt":     { "role": "Go Backend Builder", "file": "agent/agents/gpt.md" },
+    "gemini":  { "role": "Frontend & Integration", "file": "agent/agents/gemini.md" }
+  },
+
+  "startup_sequence": [
+    "READ agent/rules.txt",
+    "READ agent/context.txt",
+    "READ agent/memory/long_term.json",
+    "READ agent/memory/short_term.json",
+    "READ agent/tasks/task_list.json",
+    "IDENTIFY self (claude|gpt|gemini) → READ agent/agents/[self].md",
+    "RUN agent/core/router.md"
+  ],
+
+  "shutdown_sequence": [
+    "RUN agent/core/memory_manager.md → flush short_term ke long_term",
+    "RUN agent/core/git_manager.md → commit checkpoint",
+    "UPDATE agent/tasks/task_list.json"
+  ],
+
+  "safety": {
+    "on_rate_limit":    "PAUSE → save state → AGENT_RESUME comment → wip commit",
+    "on_disconnect":    "State tersimpan di short_term.json setiap task",
+    "on_build_fail":    "Max 2x fix sendiri → reviewer.md",
+    "on_hallucination": "STOP → baca ulang task brief → mulai ulang task",
+    "max_self_fix_attempts": 2,
+    "max_autofix_loop": 3
+  },
+
+  "cache": {
+    "llm_cache_enabled": true,
+    "file_cache_enabled": true,
+    "llm_ttl_hours": 24,
+    "file_ttl_hours": 72,
+    "cache_files": [
+      "agent/cache/llm_cache.json",
+      "agent/cache/file_cache.json"
+    ]
+  },
+
+  "git": {
+    "auto_commit": true,
+    "commit_after_each_task": true,
+    "task_commit_prefix": "task",
+    "checkpoint_prefix": "wip",
+    "branch": "main"
+  },
+
+  "go": {
+    "module": "github.com/subflow/subflow",
+    "version": "1.22",
+    "allowed_dependencies": [
+      "github.com/mattn/go-sqlite3",
+      "github.com/wailsapp/wails/v2"
+    ],
+    "build_command": "wails build",
+    "dev_command": "wails dev",
+    "test_command": "go test ./... -v -timeout 120s",
+    "vet_command": "go vet ./..."
+  },
+
+  "svelte": {
+    "check_command": "cd frontend && npm run check",
+    "build_command": "cd frontend && npm run build",
+    "dev_command": "wails dev"
+  }
+}

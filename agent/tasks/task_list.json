@@ -1,0 +1,668 @@
+{
+  "schema_version": 2,
+  "project": "SubFlow",
+  "total_tasks": 64,
+  "completed": 2,
+  "agents": {
+    "claude": "Arsitek & Reviewer",
+    "gpt": "Go Backend Builder",
+    "gemini": "Frontend & Integration"
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Project Scaffold & Foundation",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P1-01",
+          "title": "Init go.mod (module: github.com/subflow/subflow)",
+          "assigned_to": "gpt",
+          "status": "done",
+          "depends_on": [],
+          "files": ["go.mod"],
+          "acceptance": ["go.mod valid", "module path benar"]
+        },
+        {
+          "id": "P1-02",
+          "title": "Init Wails v2 project (wails.json + main.go)",
+          "assigned_to": "gpt",
+          "status": "done",
+          "depends_on": ["P1-01"],
+          "files": ["wails.json", "main.go"],
+          "acceptance": ["wails.json valid schema v2", "main.go compile"]
+        },
+        {
+          "id": "P1-03",
+          "title": "Init Svelte frontend (SvelteKit + Tailwind + Flowbite + Geist font)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P1-02"],
+          "files": ["frontend/package.json", "frontend/svelte.config.js", "frontend/vite.config.ts", "frontend/tailwind.config.js", "frontend/src/app.html", "frontend/src/app.css"],
+          "acceptance": ["npm install OK", "npm run build OK", "npm run check OK", "dark mode aktif", "Geist font loaded"]
+        },
+        {
+          "id": "P1-04",
+          "title": "Write app.go (Wails App struct + semua IPC method skeleton)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-02"],
+          "files": ["app.go"],
+          "acceptance": ["go build OK", "semua IPC method ada meski return ERR_NOT_IMPLEMENTED"]
+        },
+        {
+          "id": "P1-05",
+          "title": "Write internal/store/store.go (SQLite + migration runner + semua CRUD methods)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-01"],
+          "files": ["internal/store/store.go"],
+          "acceptance": ["go build OK", "migration runner creates all tables", "WAL mode aktif", "FK aktif"]
+        },
+        {
+          "id": "P1-06",
+          "title": "Write internal/crypto/crypto.go (AES-256-GCM encrypt/decrypt API keys)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-01"],
+          "files": ["internal/crypto/crypto.go", "internal/crypto/crypto_test.go"],
+          "acceptance": ["go test pass", "encrypt → decrypt round-trip benar", "setiap encrypt hasilkan ciphertext berbeda"]
+        },
+        {
+          "id": "P1-07",
+          "title": "Write internal/pipeline/types.go (semua shared types + interfaces)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-01"],
+          "files": ["internal/pipeline/types.go"],
+          "acceptance": ["go build OK", "semua interface ada: TranslationProvider, RewriteProvider, ASRProvider"]
+        },
+        {
+          "id": "P1-08",
+          "title": "Write internal/pipeline/errors.go (semua ERR_* error codes + UserMessage())",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-07"],
+          "files": ["internal/pipeline/errors.go"],
+          "acceptance": ["go build OK", "semua 22 error code ada", "UserMessage() return format 3 baris"]
+        },
+        {
+          "id": "P1-09",
+          "title": "Architecture review Phase 1 — verifikasi semua keputusan teknis",
+          "assigned_to": "claude",
+          "status": "pending",
+          "depends_on": ["P1-08"],
+          "files": ["agent/memory/long_term.json"],
+          "acceptance": ["long_term.json diupdate dengan semua DEC P1", "tidak ada circular import", "go.mod hanya punya 2 dependencies"]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "name": "Core Go Packages",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P2-01",
+          "title": "Write internal/subtitle/parser.go (SRT parser)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-07"],
+          "files": ["internal/subtitle/parser.go", "internal/subtitle/parser_test.go"],
+          "acceptance": ["TestSRT_ParseBasic pass", "TestSRT_ParseUTF8 pass", "timestamp parsing akurat ±1ms"]
+        },
+        {
+          "id": "P2-02",
+          "title": "Write internal/subtitle/parser_vtt.go (VTT parser)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P2-01"],
+          "files": ["internal/subtitle/parser_vtt.go", "internal/subtitle/parser_vtt_test.go"],
+          "acceptance": ["TestVTT_ParseBasic pass", "titik vs koma timestamp handled"]
+        },
+        {
+          "id": "P2-03",
+          "title": "Write internal/subtitle/parser_ass.go (ASS/SSA parser)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P2-01"],
+          "files": ["internal/subtitle/parser_ass.go", "internal/subtitle/parser_ass_test.go"],
+          "acceptance": ["TestASS_ParseDialogue pass", "TestASS_StripTags pass", "formatting tags dihapus bersih"]
+        },
+        {
+          "id": "P2-04",
+          "title": "Write internal/subtitle/segmenter.go (hard limit segmentation)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P2-01"],
+          "files": ["internal/subtitle/segmenter.go", "internal/subtitle/segmenter_test.go"],
+          "acceptance": ["TestSegmenter_SplitLongLine pass", "TestSegmenter_RespectWord pass", "CJK chars dihitung benar"]
+        },
+        {
+          "id": "P2-05",
+          "title": "Write internal/subtitle/writer.go (SRT/VTT/ASS/TXT + Dual Subtitle)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P2-01"],
+          "files": ["internal/subtitle/writer.go", "internal/subtitle/writer_test.go"],
+          "acceptance": ["TestWriter_SRT pass", "TestWriter_DualSubtitle pass", "output file valid"]
+        },
+        {
+          "id": "P2-06",
+          "title": "Write internal/pipeline/retry.go (exponential backoff + FallbackChain generic)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-08"],
+          "files": ["internal/pipeline/retry.go", "internal/pipeline/retry_test.go"],
+          "acceptance": ["TestRetry_ExponentialBackoff pass", "TestRetry_NonRetryable pass", "TestFallbackChain pass"]
+        },
+        {
+          "id": "P2-07",
+          "title": "Write internal/pipeline/orchestrator.go (step runner + state machine + resume logic)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-05", "P1-07", "P2-06"],
+          "files": ["internal/pipeline/orchestrator.go"],
+          "acceptance": ["go build OK", "resume logic skip step yang sudah done", "emit events ke UI"]
+        },
+        {
+          "id": "P2-08",
+          "title": "Write internal/context/reconstructor.go (segment merge + scene metadata)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-07"],
+          "files": ["internal/context/reconstructor.go", "internal/context/reconstructor_test.go"],
+          "acceptance": ["go test pass", "segmen terpecah di tengah kalimat digabung", "metadata JSON valid"]
+        },
+        {
+          "id": "P2-09",
+          "title": "Write internal/glossary/store.go (CRUD + prompt builder)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-05"],
+          "files": ["internal/glossary/store.go", "internal/glossary/store_test.go"],
+          "acceptance": ["go test pass", "BuildPromptSection() return string siap inject ke LLM prompt"]
+        },
+        {
+          "id": "P2-10",
+          "title": "Write internal/cost/estimator.go (token count + biaya per provider)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-07"],
+          "files": ["internal/cost/estimator.go", "internal/cost/estimator_test.go"],
+          "acceptance": ["go test pass", "estimasi dalam USD", "Ollama return $0.00"]
+        },
+        {
+          "id": "P2-11",
+          "title": "Code review Phase 2 oleh Claude",
+          "assigned_to": "claude",
+          "status": "pending",
+          "depends_on": ["P2-10"],
+          "files": ["agent/memory/long_term.json"],
+          "acceptance": ["tidak ada circular import", "semua error wrap dengan context", "semua interface max 5 methods"]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "name": "ASR Engine",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P3-01",
+          "title": "Write internal/asr/types.go (ASRProvider interface + types + constants)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-07"],
+          "files": ["internal/asr/types.go"],
+          "acceptance": ["go build OK", "HardwareBackend constants lengkap: auto/cpu/cuda/rocm/coreml/openvino"]
+        },
+        {
+          "id": "P3-02",
+          "title": "Write internal/asr/whisper_hardware.go (detection CUDA/ROCm/CoreML/OpenVINO/CPU)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P3-01"],
+          "files": ["internal/asr/whisper_hardware.go", "internal/asr/whisper_hardware_test.go"],
+          "acceptance": ["DetectBestBackend() tidak panic", "CPU selalu return jika tidak ada GPU", "ComputeTypeForBackend() return benar per backend"]
+        },
+        {
+          "id": "P3-03",
+          "title": "Write internal/asr/audio_extract.go (FFmpeg subprocess wrapper)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P3-01"],
+          "files": ["internal/asr/audio_extract.go", "internal/asr/audio_extract_test.go"],
+          "acceptance": ["go build OK", "output WAV: 16kHz mono PCM 16-bit", "error wrapped dengan ERR_ASR_003"]
+        },
+        {
+          "id": "P3-04",
+          "title": "Write internal/asr/whisper_local.go (faster-whisper subprocess + JSON stream)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P3-02", "P3-03"],
+          "files": ["internal/asr/whisper_local.go", "internal/asr/whisper_local_test.go"],
+          "acceptance": ["streaming: segmen dikirim satu-satu lewat channel", "context cancellation bersih", "mock subprocess test pass"]
+        },
+        {
+          "id": "P3-05",
+          "title": "Write internal/asr/groq.go (Groq Whisper API client)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P3-01"],
+          "files": ["internal/asr/groq.go", "internal/asr/groq_test.go"],
+          "acceptance": ["mock HTTP server test pass", "EstimateCost() return $0.02/menit"]
+        },
+        {
+          "id": "P3-06",
+          "title": "Write internal/asr/deepgram.go (Deepgram API client)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P3-01"],
+          "files": ["internal/asr/deepgram.go", "internal/asr/deepgram_test.go"],
+          "acceptance": ["mock HTTP server test pass", "EstimateCost() return $0.0043/menit"]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "Translation & Rewrite",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P4-01",
+          "title": "Write internal/translation/types.go + factory.go (TranslationProvider factory)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-07", "P2-06"],
+          "files": ["internal/translation/types.go", "internal/translation/factory.go"],
+          "acceptance": ["NewProvider(name, apiKey, model) berjalan", "unknown provider return error"]
+        },
+        {
+          "id": "P4-02",
+          "title": "Write internal/translation/deepl.go",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P4-01"],
+          "files": ["internal/translation/deepl.go", "internal/translation/deepl_test.go"],
+          "acceptance": ["mock server test pass", "MaxBatchSize()=50", "semaphore 10", "tag_handling=html"]
+        },
+        {
+          "id": "P4-03",
+          "title": "Write internal/translation/openai.go",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P4-01"],
+          "files": ["internal/translation/openai.go", "internal/translation/openai_test.go"],
+          "acceptance": ["mock server test pass", "system prompt dengan content_mode", "glossary inject"]
+        },
+        {
+          "id": "P4-04",
+          "title": "Write internal/translation/anthropic.go",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P4-01"],
+          "files": ["internal/translation/anthropic.go", "internal/translation/anthropic_test.go"],
+          "acceptance": ["mock server test pass", "anthropic-version header ada"]
+        },
+        {
+          "id": "P4-05",
+          "title": "Write internal/translation/gemini.go",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P4-01"],
+          "files": ["internal/translation/gemini.go", "internal/translation/gemini_test.go"],
+          "acceptance": ["mock server test pass"]
+        },
+        {
+          "id": "P4-06",
+          "title": "Write internal/translation/ollama.go",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P4-01"],
+          "files": ["internal/translation/ollama.go", "internal/translation/ollama_test.go"],
+          "acceptance": ["mock server test pass", "EstimateCost() return 0.0", "concurrency=1"]
+        },
+        {
+          "id": "P4-07",
+          "title": "Write internal/rewrite/engine.go (Layer 2 orchestrator + tone presets + prompt builder)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P4-01"],
+          "files": ["internal/rewrite/engine.go", "internal/rewrite/engine_test.go"],
+          "acceptance": ["4 tone presets ada", "system prompt include source+L1+context+tone+limits+glossary"]
+        },
+        {
+          "id": "P4-08",
+          "title": "Write internal/rewrite/providers.go (OpenAI/Anthropic/Gemini/Qwen/xAI/Ollama)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P4-07"],
+          "files": ["internal/rewrite/providers.go", "internal/rewrite/providers_test.go"],
+          "acceptance": ["semua 6 provider implement RewriteProvider interface", "mock test pass"]
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "name": "QA Engine",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P5-01",
+          "title": "Write internal/qa/types.go (QAResult, QALog, SubtitleCard + 9 check constants)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P1-07"],
+          "files": ["internal/qa/types.go"],
+          "acceptance": ["go build OK", "9 check ID constants ada"]
+        },
+        {
+          "id": "P5-02",
+          "title": "Write internal/qa/validator.go (9 QA checks, pure logic)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P5-01"],
+          "files": ["internal/qa/validator.go"],
+          "acceptance": ["Validate() return QAResult per card", "CPS pakai []rune untuk CJK", "no I/O, no imports dari internal lain"]
+        },
+        {
+          "id": "P5-03",
+          "title": "Write internal/qa/autofix.go (auto-correction QA-01 s/d QA-08)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P5-02"],
+          "files": ["internal/qa/autofix.go"],
+          "acceptance": ["AutoFix() return cards + logs", "max 3x loop", "QA-09 tidak di-fix"]
+        },
+        {
+          "id": "P5-04",
+          "title": "Write internal/qa/validator_test.go (semua 19 test cases dari module spec)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P5-03"],
+          "files": ["internal/qa/validator_test.go", "internal/qa/autofix_test.go"],
+          "acceptance": ["19 test cases semua pass", "go test -race pass"]
+        },
+        {
+          "id": "P5-05",
+          "title": "Code review QA Engine oleh Claude",
+          "assigned_to": "claude",
+          "status": "pending",
+          "depends_on": ["P5-04"],
+          "files": ["agent/memory/long_term.json"],
+          "acceptance": ["pure logic verified", "tidak ada import dari package internal lain di qa/"]
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "name": "Svelte UI — Home & Settings",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P6-01",
+          "title": "Setup Svelte stores (pipeline.ts, project.ts, settings.ts, ui.ts)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P1-03"],
+          "files": ["frontend/src/lib/stores/pipeline.ts", "frontend/src/lib/stores/project.ts", "frontend/src/lib/stores/settings.ts", "frontend/src/lib/stores/ui.ts"],
+          "acceptance": ["npm run check OK", "semua store typed (no any)", "exported dengan named export"]
+        },
+        {
+          "id": "P6-02",
+          "title": "Setup Wails bindings wrapper ($lib/wails/index.ts)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P1-04", "P6-01"],
+          "files": ["frontend/src/lib/wails/index.ts"],
+          "acceptance": ["re-export semua IPC methods", "re-export EventsOn, EventsOff, EventsEmit"]
+        },
+        {
+          "id": "P6-03",
+          "title": "Build +layout.svelte (sidebar + topbar, shared layout)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-01", "P6-02"],
+          "files": ["frontend/src/routes/+layout.svelte"],
+          "acceptance": ["sidebar dengan semua nav items", "neon dark theme", "npm run check OK"]
+        },
+        {
+          "id": "P6-04",
+          "title": "Build Home page — drop zone + stats tiles + recent projects + pipeline progress",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-03"],
+          "files": ["frontend/src/routes/+page.svelte", "frontend/src/lib/components/DropZone.svelte", "frontend/src/lib/components/PipelineProgress.svelte", "frontend/src/lib/components/StatusBadge.svelte"],
+          "acceptance": ["OS drag-drop via EventsOn file:dropped berfungsi", "stats tiles update dari store", "npm run check OK"]
+        },
+        {
+          "id": "P6-05",
+          "title": "Build Settings page — API keys + ASR hardware selector + model picker",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-03"],
+          "files": ["frontend/src/routes/settings/+page.svelte"],
+          "acceptance": ["API key field type=password", "hardware info tampil dari store", "SetSetting() dipanggil saat save", "npm run check OK"]
+        },
+        {
+          "id": "P6-06",
+          "title": "Build CostEstimator component",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-03"],
+          "files": ["frontend/src/lib/components/CostEstimator.svelte"],
+          "acceptance": ["update realtime saat provider diganti", "tampilkan $0.00 untuk Ollama/local", "npm run check OK"]
+        }
+      ]
+    },
+    {
+      "id": "P7",
+      "name": "Svelte UI — Editor",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P7-01",
+          "title": "Setup EditorState store + history store (undo/redo 50 langkah)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-01"],
+          "files": ["frontend/src/lib/stores/editor.ts", "frontend/src/lib/stores/history.ts"],
+          "acceptance": ["EditorState typed", "undo/redo max 50 entries", "npm run check OK"]
+        },
+        {
+          "id": "P7-02",
+          "title": "Build editor layout +page.svelte (4-panel grid + sync behavior)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P7-01", "P6-02"],
+          "files": ["frontend/src/routes/editor/+page.svelte"],
+          "acceptance": ["4 panel ada: video/segmentlist/timeline/inlineeditor", "npm run check OK"]
+        },
+        {
+          "id": "P7-03",
+          "title": "Build SegmentList.svelte + SegmentRow.svelte (dengan QA indicator warna)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P7-02"],
+          "files": ["frontend/src/lib/components/SegmentList.svelte", "frontend/src/lib/components/SegmentRow.svelte"],
+          "acceptance": ["QA indicator 4 warna benar", "klik segmen sync ke video + timeline", "npm run check OK"]
+        },
+        {
+          "id": "P7-04",
+          "title": "Build VideoPreview.svelte (video player + subtitle overlay + toggle L1/L2/source/dual)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P7-02"],
+          "files": ["frontend/src/lib/components/VideoPreview.svelte"],
+          "acceptance": ["overlay update realtime saat teks diedit", "toggle mode berfungsi", "npm run check OK"]
+        },
+        {
+          "id": "P7-05a",
+          "title": "Build Timeline.svelte — card rendering + scroll + zoom",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P7-02"],
+          "files": ["frontend/src/lib/components/Timeline.svelte"],
+          "acceptance": ["card posisi sesuai timestamp", "Ctrl+Scroll zoom berfungsi", "npm run check OK"]
+        },
+        {
+          "id": "P7-05b",
+          "title": "Build Timeline.svelte — drag handles + snap + overlap detection",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P7-05a"],
+          "files": ["frontend/src/lib/components/Timeline.svelte"],
+          "acceptance": ["drag start/end handle update timestamp", "snap 83ms ke card tetangga", "Alt+drag disable snap", "overlap highlight merah"]
+        },
+        {
+          "id": "P7-06",
+          "title": "Build InlineEditor.svelte (edit source/L1/L2 + Split/Merge/RetryL1/RetryL2/Hapus)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P7-03"],
+          "files": ["frontend/src/lib/components/InlineEditor.svelte"],
+          "acceptance": ["edit teks update overlay realtime", "tombol aksi call Wails IPC", "npm run check OK"]
+        },
+        {
+          "id": "P7-07",
+          "title": "Implement keyboard shortcuts (shortcuts.ts action)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P7-02"],
+          "files": ["frontend/src/lib/utils/shortcuts.ts"],
+          "acceptance": ["semua 11 shortcut dari module spec berfungsi", "cleanup di onDestroy", "npm run check OK"]
+        }
+      ]
+    },
+    {
+      "id": "P8",
+      "name": "Export & Glossary",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P8-01",
+          "title": "Write internal/export/engine.go (SRT/VTT/ASS/TXT writer + QA final pass + Dual Sub)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P2-05", "P5-03"],
+          "files": ["internal/export/engine.go", "internal/export/engine_test.go"],
+          "acceptance": ["go test pass", "QA pass wajib sebelum ekspor", "Dual Subtitle valid SRT/ASS"]
+        },
+        {
+          "id": "P8-02",
+          "title": "Build ExportPanel.svelte (format selector + dir picker + dual subtitle toggle)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-02"],
+          "files": ["frontend/src/lib/components/ExportPanel.svelte"],
+          "acceptance": ["SelectDirectory() Wails dialog berfungsi", "QA warning tampil sebelum ekspor", "npm run check OK"]
+        },
+        {
+          "id": "P8-03",
+          "title": "Build Glossary page (CRUD table + import/export JSON)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-03"],
+          "files": ["frontend/src/routes/glossary/+page.svelte"],
+          "acceptance": ["add/edit/delete term berfungsi", "import/export JSON via Wails file dialog", "npm run check OK"]
+        },
+        {
+          "id": "P8-04",
+          "title": "Build Project History page (list + buka + re-ekspor + hapus)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P6-03"],
+          "files": ["frontend/src/routes/projects/+page.svelte"],
+          "acceptance": ["load projects dari GetProjects()", "hapus dengan konfirmasi", "npm run check OK"]
+        }
+      ]
+    },
+    {
+      "id": "P9",
+      "name": "Integration & E2E Test",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P9-01",
+          "title": "Design E2E test suite (test fixtures + mock providers)",
+          "assigned_to": "claude",
+          "status": "pending",
+          "depends_on": ["P5-04"],
+          "files": ["tests/fixtures/sample.srt", "tests/fixtures/sample_ja.srt", "tests/mock_provider.go"],
+          "acceptance": ["fixture SRT valid", "mock provider implements TranslationProvider", "mock return terjemahan dummy"]
+        },
+        {
+          "id": "P9-02",
+          "title": "Write tests/e2e_subtitle_test.go (SRT → translated SRT, EN→ID)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P9-01", "P8-01"],
+          "files": ["tests/e2e_subtitle_test.go"],
+          "acceptance": ["go test pass", "pipeline selesai tanpa error", "output SRT valid dan bisa di-parse ulang"]
+        },
+        {
+          "id": "P9-03",
+          "title": "Write tests/recovery_test.go (crash mid-pipeline, restart, verify resume)",
+          "assigned_to": "gpt",
+          "status": "pending",
+          "depends_on": ["P2-07"],
+          "files": ["tests/recovery_test.go"],
+          "acceptance": ["simulasi crash setelah step 3", "restart pipeline", "step 1-3 di-skip", "step 4+ dijalankan ulang"]
+        },
+        {
+          "id": "P9-04",
+          "title": "Final integration review oleh Claude",
+          "assigned_to": "claude",
+          "status": "pending",
+          "depends_on": ["P9-03"],
+          "files": ["agent/memory/long_term.json"],
+          "acceptance": ["go test ./... pass", "go test -race ./... pass", "tidak ada data race", "semua ERR_ codes terdokumentasi"]
+        }
+      ]
+    },
+    {
+      "id": "P10",
+      "name": "Polish & Packaging",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "P10-01",
+          "title": "Write scripts/whisper_runner.py + scripts/bundle-whisper.sh (PyInstaller freeze)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P3-04"],
+          "files": ["scripts/whisper_runner.py", "scripts/bundle-whisper.sh"],
+          "acceptance": ["whisper_runner.py accept --audio --model --backend --language", "output JSON stream ke stdout", "bundle-whisper.sh produksi exe yang berjalan tanpa Python"]
+        },
+        {
+          "id": "P10-02",
+          "title": "Write scripts/bundle-ffmpeg.sh (download + verify static FFmpeg Windows build)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P3-03"],
+          "files": ["scripts/bundle-ffmpeg.sh"],
+          "acceptance": ["download ffmpeg static build", "verify sha256", "copy ke build/bin/ffmpeg.exe"]
+        },
+        {
+          "id": "P10-03",
+          "title": "Write scripts/build.sh (wails build -nsis → installer .exe)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P10-01", "P10-02"],
+          "files": ["scripts/build.sh"],
+          "acceptance": ["script berjalan di Windows + WSL", "output: build/bin/SubFlow-installer.exe", "installer ≤ 200MB"]
+        },
+        {
+          "id": "P10-04",
+          "title": "Write docs/setup.md (panduan instalasi untuk pengguna awam)",
+          "assigned_to": "gemini",
+          "status": "pending",
+          "depends_on": ["P10-03"],
+          "files": ["docs/setup.md"],
+          "acceptance": ["step-by-step install", "cara masukkan API key", "FAQ masalah umum", "dalam Bahasa Indonesia"]
+        }
+      ]
+    }
+  ]
+}
