@@ -21,8 +21,10 @@ frontend/wailsjs/
 # Python venv
 .venv/
 
-# Agent cache — DO NOT commit (regeneratable)
+# Agent cache — DO NOT commit (regeneratable) dan all agent
+agent/
 agent/cache/
+AGENTS.md
 
 # OS
 .DS_Store

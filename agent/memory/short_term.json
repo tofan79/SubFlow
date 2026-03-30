@@ -3,8 +3,8 @@
   "session_id": "ses-20260330-001",
   "session_start": "2026-03-30T00:00:00+07:00",
   "active_agent": "claude",
-  "routed_to": "gpt",
-  "route_reason": "P1-01 dan P1-02 selesai. Lanjut ke tasks paralel: P1-03 (Gemini), P1-04/P1-05/P1-06/P1-07 (GPT).",
+  "routed_to": "gemini",
+  "route_reason": "P1-01 sampai P1-07 selesai (kecuali P1-03). Next: P1-03 (Gemini: Svelte frontend), lalu P1-08 (GPT: errors.go), P1-09 (Claude: review).",
   "waiting_for": null,
 
   "current_task": {
@@ -18,8 +18,8 @@
     "files_to_read": [],
     "acceptance_criteria": [],
     "estimated_lines": 0,
-    "build_verified": false,
-    "test_verified": false,
+    "build_verified": true,
+    "test_verified": true,
     "attempts": 0,
     "error": null,
     "needs_reviewer": false,
@@ -31,7 +31,7 @@
   "qa_loop": null,
   "safety_warnings": [],
   "errors": [],
-  "files_modified": ["go.mod", "main.go", "frontend/dist/index.html", "go.sum"],
+  "files_modified": ["go.mod", "go.sum", "main.go", "app.go", "internal/store/store.go", "internal/crypto/crypto.go", "internal/crypto/crypto_test.go", "internal/pipeline/types.go"],
 
   "_instructions": "Jika current_task.status = in_progress, JANGAN reset file ini. Cari resume_hint dan lanjutkan dari sana. Jika status = none, jalankan planner.md untuk ambil task baru."
 }

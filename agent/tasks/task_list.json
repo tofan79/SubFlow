@@ -2,7 +2,7 @@
   "schema_version": 2,
   "project": "SubFlow",
   "total_tasks": 64,
-  "completed": 2,
+  "completed": 6,
   "agents": {
     "claude": "Arsitek & Reviewer",
     "gpt": "Go Backend Builder",
@@ -45,7 +45,7 @@
           "id": "P1-04",
           "title": "Write app.go (Wails App struct + semua IPC method skeleton)",
           "assigned_to": "gpt",
-          "status": "pending",
+          "status": "done",
           "depends_on": ["P1-02"],
           "files": ["app.go"],
           "acceptance": ["go build OK", "semua IPC method ada meski return ERR_NOT_IMPLEMENTED"]
@@ -54,7 +54,7 @@
           "id": "P1-05",
           "title": "Write internal/store/store.go (SQLite + migration runner + semua CRUD methods)",
           "assigned_to": "gpt",
-          "status": "pending",
+          "status": "done",
           "depends_on": ["P1-01"],
           "files": ["internal/store/store.go"],
           "acceptance": ["go build OK", "migration runner creates all tables", "WAL mode aktif", "FK aktif"]
@@ -63,7 +63,7 @@
           "id": "P1-06",
           "title": "Write internal/crypto/crypto.go (AES-256-GCM encrypt/decrypt API keys)",
           "assigned_to": "gpt",
-          "status": "pending",
+          "status": "done",
           "depends_on": ["P1-01"],
           "files": ["internal/crypto/crypto.go", "internal/crypto/crypto_test.go"],
           "acceptance": ["go test pass", "encrypt → decrypt round-trip benar", "setiap encrypt hasilkan ciphertext berbeda"]
@@ -72,7 +72,7 @@
           "id": "P1-07",
           "title": "Write internal/pipeline/types.go (semua shared types + interfaces)",
           "assigned_to": "gpt",
-          "status": "pending",
+          "status": "done",
           "depends_on": ["P1-01"],
           "files": ["internal/pipeline/types.go"],
           "acceptance": ["go build OK", "semua interface ada: TranslationProvider, RewriteProvider, ASRProvider"]

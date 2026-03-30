@@ -6,7 +6,10 @@ go 1.23
 // All other needs covered by Go stdlib.
 // Before adding any new dependency: record as DEC in long_term.json first.
 
-require github.com/wailsapp/wails/v2 v2.12.0
+require (
+	github.com/mattn/go-sqlite3 v1.14.37
+	github.com/wailsapp/wails/v2 v2.12.0
+)
 
 require (
 	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3 // indirect

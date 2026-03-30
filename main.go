@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"log"
 
@@ -54,30 +53,4 @@ func main() {
 	if err != nil {
 		log.Fatal("main: wails.Run: ", err)
 	}
-}
-
-// App struct holds application state and provides IPC methods to frontend.
-// All public methods are automatically bound and callable from JavaScript.
-type App struct {
-	ctx context.Context
-}
-
-// NewApp creates a new App instance.
-func NewApp() *App {
-	return &App{}
-}
-
-// startup is called when the app starts. The context is saved for runtime calls.
-func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
-}
-
-// domReady is called after the frontend DOM has been loaded.
-func (a *App) domReady(ctx context.Context) {
-	// Future: emit initial state to frontend
-}
-
-// shutdown is called when the app is closing.
-func (a *App) shutdown(ctx context.Context) {
-	// Future: cleanup resources, close DB connections
 }
