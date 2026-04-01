@@ -1,9 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-[#0f0f14] text-white;
+    @apply bg-surface-background text-white font-sans antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-border rounded-full hover:bg-surface-elevated;
+  }
+}
+
+@layer components {
+  .neon-text-primary {
+    text-shadow: 0 0 8px rgba(255, 45, 120, 0.6), 0 0 16px rgba(255, 45, 120, 0.3);
+  }
+
+  .neon-text-secondary {
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.6), 0 0 16px rgba(0, 255, 204, 0.3);
+  }
+
+  .neon-text-tertiary {
+    text-shadow: 0 0 8px rgba(255, 224, 74, 0.6), 0 0 16px rgba(255, 224, 74, 0.3);
+  }
+
+  .neon-border-primary {
+    @apply border border-primary/30;
+    box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.1);
+  }
+
+  .neon-border-secondary {
+    @apply border border-secondary/30;
+    box-shadow: inset 0 0 12px rgba(0, 255, 204, 0.1);
+  }
+
+  .neon-border-tertiary {
+    @apply border border-tertiary/30;
+    box-shadow: inset 0 0 12px rgba(255, 224, 74, 0.1);
+  }
+
+  .card-neon {
+    @apply bg-surface-container rounded-xl neon-border-primary;
+  }
+
+  .btn-neon-primary {
+    @apply bg-primary text-white font-medium px-4 py-2 rounded-lg;
+    @apply hover:shadow-neon-primary transition-shadow duration-200;
+  }
+
+  .btn-neon-secondary {
+    @apply bg-surface-container text-secondary border border-secondary/30;
+    @apply hover:shadow-neon-secondary transition-shadow duration-200 font-medium px-4 py-2 rounded-lg;
+  }
+
+  .scanline-bg {
+    background: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px
+      );
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg;
+    @apply hover:bg-surface-elevated hover:text-white transition-colors duration-200;
+  }
+
+  .nav-item-active {
+    @apply bg-surface-elevated text-primary neon-border-primary;
+  }
+
+  .stat-tile {
+    @apply bg-surface-container rounded-xl p-4 neon-border-secondary;
+  }
+
+  .input-neon {
+    @apply bg-surface-container border border-surface-border rounded-lg px-4 py-2;
+    @apply text-white placeholder-gray-500;
+    @apply focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none;
+    @apply transition-colors duration-200;
   }
 }
