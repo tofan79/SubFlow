@@ -262,3 +262,142 @@ func TestHandleHTTPError_Auth(t *testing.T) {
 		t.Error("expected auth error")
 	}
 }
+
+func TestOpenRouterProvider_Name(t *testing.T) {
+	p := NewOpenRouterProvider("test-key", "", "")
+	if p.Name() != ProviderOpenRouter {
+		t.Errorf("expected %s, got %s", ProviderOpenRouter, p.Name())
+	}
+}
+
+func TestOpenRouterProvider_DefaultModel(t *testing.T) {
+	p := NewOpenRouterProvider("test-key", "", "")
+	if p.model != "openai/gpt-4o-mini" {
+		t.Errorf("expected default model openai/gpt-4o-mini, got %s", p.model)
+	}
+}
+
+func TestOpenRouterProvider_EstimateCost(t *testing.T) {
+	tests := []struct {
+		model   string
+		tokens  int
+		minCost float64
+		maxCost float64
+	}{
+		{"openai/gpt-4o-mini", 1000, 0.0001, 0.0002},
+		{"openai/gpt-4o", 1000, 0.004, 0.006},
+		{"anthropic/claude-3-haiku", 1000, 0.0002, 0.0003},
+		{"anthropic/claude-3-sonnet", 1000, 0.002, 0.004},
+		{"anthropic/claude-3-opus", 1000, 0.01, 0.02},
+		{"google/gemini-1.5-flash", 1000, 0.00005, 0.0001},
+		{"google/gemini-1.5-pro", 1000, 0.001, 0.002},
+		{"meta-llama/llama-3-70b", 1000, 0.0001, 0.0003},
+		{"mistralai/mistral-7b", 1000, 0.0001, 0.0003},
+		{"unknown/model", 1000, 0.0005, 0.002},
+	}
+
+	for _, tc := range tests {
+		p := NewOpenRouterProvider("test-key", tc.model, "")
+		cost := p.EstimateCost(tc.tokens)
+		if cost < tc.minCost || cost > tc.maxCost {
+			t.Errorf("model %s: unexpected cost %f, expected between %f and %f", tc.model, cost, tc.minCost, tc.maxCost)
+		}
+	}
+}
+
+func TestOpenRouterProvider_ZeroCost(t *testing.T) {
+	p := NewOpenRouterProvider("test-key", "", "")
+	if p.EstimateCost(0) != 0 {
+		t.Error("expected 0 cost for 0 tokens")
+	}
+	if p.EstimateCost(-100) != 0 {
+		t.Error("expected 0 cost for negative tokens")
+	}
+}
+
+func TestOpenRouterProvider_Headers(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer test-key" {
+			t.Error("missing or wrong Authorization header")
+		}
+		if r.Header.Get("HTTP-Referer") != "https://subflow.app" {
+			t.Error("missing or wrong HTTP-Referer header")
+		}
+		if r.Header.Get("X-Title") != "SubFlow" {
+			t.Error("missing or wrong X-Title header")
+		}
+		resp := map[string]any{
+			"choices": []map[string]any{
+				{"message": map[string]string{"content": "[1] Test"}},
+			},
+		}
+		json.NewEncoder(w).Encode(resp)
+	}))
+	defer server.Close()
+
+	p := NewOpenRouterProvider("test-key", "", server.URL)
+	_, err := p.Rewrite(context.Background(), []Input{{Source: "Hi", Translated: "Hai"}}, Opts{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestOpenRouterProvider_Rewrite(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resp := map[string]any{
+			"choices": []map[string]any{
+				{"message": map[string]string{"content": "[1] Halo\n[2] Dunia"}},
+			},
+		}
+		json.NewEncoder(w).Encode(resp)
+	}))
+	defer server.Close()
+
+	p := NewOpenRouterProvider("test-key", "openai/gpt-4o-mini", server.URL)
+	result, err := p.Rewrite(context.Background(), []Input{
+		{Source: "Hello", Translated: "Halo"},
+		{Source: "World", Translated: "Dunia"},
+	}, Opts{})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result) != 2 {
+		t.Fatalf("expected 2 results, got %d", len(result))
+	}
+	if result[0] != "Halo" || result[1] != "Dunia" {
+		t.Errorf("unexpected results: %v", result)
+	}
+}
+
+func TestOpenRouterProvider_EmptyAPIKey(t *testing.T) {
+	p := NewOpenRouterProvider("", "", "")
+	_, err := p.Rewrite(context.Background(), []Input{{Source: "Hi", Translated: "Hai"}}, Opts{})
+	if err == nil {
+		t.Error("expected error for empty API key")
+	}
+}
+
+func TestOpenRouterProvider_EmptyBatch(t *testing.T) {
+	p := NewOpenRouterProvider("test-key", "", "")
+	result, err := p.Rewrite(context.Background(), []Input{}, Opts{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result) != 0 {
+		t.Errorf("expected empty result, got %d items", len(result))
+	}
+}
+
+func TestOpenRouterProvider_PaymentRequired(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusPaymentRequired)
+	}))
+	defer server.Close()
+
+	p := NewOpenRouterProvider("test-key", "", server.URL)
+	_, err := p.Rewrite(context.Background(), []Input{{Source: "Hi", Translated: "Hai"}}, Opts{})
+	if err == nil {
+		t.Error("expected payment required error")
+	}
+}

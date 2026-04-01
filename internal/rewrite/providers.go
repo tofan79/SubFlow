@@ -551,6 +551,124 @@ func (p *OllamaProvider) Rewrite(ctx context.Context, batch []Input, opts Opts) 
 
 var _ Provider = (*OllamaProvider)(nil)
 
+type OpenRouterProvider struct {
+	apiKey     string
+	model      string
+	httpClient *http.Client
+	baseURL    string
+	siteURL    string
+	siteName   string
+}
+
+func NewOpenRouterProvider(apiKey, model, baseURL string) *OpenRouterProvider {
+	if model == "" {
+		model = "openai/gpt-4o-mini"
+	}
+	if baseURL == "" {
+		baseURL = "https://openrouter.ai/api"
+	}
+	return &OpenRouterProvider{
+		apiKey:     apiKey,
+		model:      model,
+		httpClient: &http.Client{Timeout: 5 * time.Minute},
+		baseURL:    strings.TrimRight(baseURL, "/"),
+		siteURL:    "https://subflow.app",
+		siteName:   "SubFlow",
+	}
+}
+
+func (p *OpenRouterProvider) Name() string { return ProviderOpenRouter }
+
+func (p *OpenRouterProvider) EstimateCost(tokenCount int) float64 {
+	if tokenCount <= 0 {
+		return 0
+	}
+	switch {
+	case strings.Contains(p.model, "gpt-4o-mini"):
+		return float64(tokenCount) * 0.00000015
+	case strings.Contains(p.model, "gpt-4o"):
+		return float64(tokenCount) * 0.000005
+	case strings.Contains(p.model, "claude-3-haiku"):
+		return float64(tokenCount) * 0.00000025
+	case strings.Contains(p.model, "claude-3-sonnet"):
+		return float64(tokenCount) * 0.000003
+	case strings.Contains(p.model, "claude-3-opus"):
+		return float64(tokenCount) * 0.000015
+	case strings.Contains(p.model, "gemini-1.5-flash"):
+		return float64(tokenCount) * 0.000000075
+	case strings.Contains(p.model, "gemini-1.5-pro"):
+		return float64(tokenCount) * 0.00000125
+	case strings.Contains(p.model, "llama"):
+		return float64(tokenCount) * 0.0000002
+	case strings.Contains(p.model, "mistral"):
+		return float64(tokenCount) * 0.0000002
+	default:
+		return float64(tokenCount) * 0.000001
+	}
+}
+
+func (p *OpenRouterProvider) Rewrite(ctx context.Context, batch []Input, opts Opts) ([]string, error) {
+	if len(batch) == 0 {
+		return []string{}, nil
+	}
+
+	if strings.TrimSpace(p.apiKey) == "" {
+		return nil, pipeline.ErrRwtAPIKeyErr(p.Name())
+	}
+
+	reqBody := map[string]any{
+		"model": p.model,
+		"messages": []map[string]string{
+			{"role": "system", "content": BuildSystemPrompt(opts)},
+			{"role": "user", "content": BuildUserPrompt(batch)},
+		},
+		"temperature": 0.4,
+	}
+
+	bodyBytes, _ := json.Marshal(reqBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.baseURL+"/v1/chat/completions", bytes.NewReader(bodyBytes))
+	if err != nil {
+		return nil, pipeline.NewError(pipeline.ErrRwtTimeout, "failed to create request", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+p.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("HTTP-Referer", p.siteURL)
+	req.Header.Set("X-Title", p.siteName)
+
+	resp, err := p.httpClient.Do(req)
+	if err != nil {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		return nil, pipeline.ErrRwtTimeoutErr(p.Name(), err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, handleHTTPError(resp, p.Name())
+	}
+
+	var result struct {
+		Choices []struct {
+			Message struct {
+				Content string `json:"content"`
+			} `json:"message"`
+		} `json:"choices"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, pipeline.NewError(pipeline.ErrRwtTimeout, "failed to decode response", err)
+	}
+
+	if len(result.Choices) == 0 {
+		return nil, pipeline.NewError(pipeline.ErrRwtTimeout, "no response from OpenRouter", nil)
+	}
+
+	return parseRewriteResponse(result.Choices[0].Message.Content, len(batch))
+}
+
+var _ Provider = (*OpenRouterProvider)(nil)
+
 func parseRewriteResponse(content string, expectedCount int) ([]string, error) {
 	lines := strings.Split(content, "\n")
 	result := make([]string, expectedCount)

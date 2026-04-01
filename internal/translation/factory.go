@@ -16,6 +16,8 @@ func NewProvider(cfg Config) (Provider, error) {
 		return NewGeminiProvider(cfg.APIKey, cfg.Model), nil
 	case ProviderOllama:
 		return NewOllamaProvider(cfg.BaseURL, cfg.Model), nil
+	case ProviderOpenRouter:
+		return NewOpenRouterProvider(cfg.APIKey, cfg.Model, cfg.BaseURL), nil
 	default:
 		return nil, fmt.Errorf("unknown translation provider: %s", cfg.Provider)
 	}

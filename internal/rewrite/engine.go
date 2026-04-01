@@ -30,12 +30,13 @@ const (
 
 // Provider constants
 const (
-	ProviderOpenAI    = "openai"
-	ProviderAnthropic = "anthropic"
-	ProviderGemini    = "gemini"
-	ProviderQwen      = "qwen"
-	ProviderXAI       = "xai"
-	ProviderOllama    = "ollama"
+	ProviderOpenAI     = "openai"
+	ProviderAnthropic  = "anthropic"
+	ProviderGemini     = "gemini"
+	ProviderQwen       = "qwen"
+	ProviderXAI        = "xai"
+	ProviderOllama     = "ollama"
+	ProviderOpenRouter = "openrouter"
 )
 
 // Provider defines the interface for rewrite services.
@@ -82,6 +83,8 @@ func NewProvider(cfg Config) (Provider, error) {
 		return NewXAIProvider(cfg.APIKey, cfg.Model), nil
 	case ProviderOllama:
 		return NewOllamaProvider(cfg.BaseURL, cfg.Model), nil
+	case ProviderOpenRouter:
+		return NewOpenRouterProvider(cfg.APIKey, cfg.Model, cfg.BaseURL), nil
 	default:
 		return nil, fmt.Errorf("unknown rewrite provider: %s", cfg.Provider)
 	}

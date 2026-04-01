@@ -18,11 +18,12 @@ type Provider interface {
 }
 
 const (
-	ProviderDeepL     = "deepl"
-	ProviderOpenAI    = "openai"
-	ProviderAnthropic = "anthropic"
-	ProviderGemini    = "gemini"
-	ProviderOllama    = "ollama"
+	ProviderDeepL      = "deepl"
+	ProviderOpenAI     = "openai"
+	ProviderAnthropic  = "anthropic"
+	ProviderGemini     = "gemini"
+	ProviderOllama     = "ollama"
+	ProviderOpenRouter = "openrouter"
 )
 
 type Config struct {
