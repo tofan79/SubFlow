@@ -6,92 +6,221 @@
 
 @layer base {
   body {
-    @apply bg-surface-background text-white font-sans antialiased;
+    @apply bg-background text-on-background font-sans antialiased selection:bg-primary/30;
   }
 
   ::-webkit-scrollbar {
-    @apply w-2;
+    @apply w-1.5;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-surface;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-surface-border rounded-full hover:bg-surface-elevated;
+    @apply bg-[#28283e] rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-[#3a3a52];
+  }
+
+  /* Custom select styling */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23808090' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
   }
 }
 
 @layer components {
+  /* ============ TYPOGRAPHY ============ */
+  .font-headline {
+    font-family: 'Sora', sans-serif;
+  }
+
+  .font-label {
+    font-family: 'Space Grotesk', monospace;
+  }
+
+  /* ============ NEON TEXT EFFECTS ============ */
   .neon-text-primary {
-    text-shadow: 0 0 8px rgba(255, 45, 120, 0.6), 0 0 16px rgba(255, 45, 120, 0.3);
+    color: #ff2d78;
+    text-shadow: 0 0 8px rgba(255, 45, 120, 0.6), 0 0 20px rgba(255, 45, 120, 0.25);
   }
 
   .neon-text-secondary {
-    text-shadow: 0 0 8px rgba(0, 255, 204, 0.6), 0 0 16px rgba(0, 255, 204, 0.3);
+    color: #00ffcc;
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.6), 0 0 20px rgba(0, 255, 204, 0.25);
   }
 
   .neon-text-tertiary {
-    text-shadow: 0 0 8px rgba(255, 224, 74, 0.6), 0 0 16px rgba(255, 224, 74, 0.3);
+    color: #ffe04a;
+    text-shadow: 0 0 8px rgba(255, 224, 74, 0.6), 0 0 20px rgba(255, 224, 74, 0.25);
   }
 
+  /* ============ NEON BORDER EFFECTS ============ */
   .neon-border-primary {
-    @apply border border-primary/30;
-    box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.1);
+    border: 1px solid rgba(255, 45, 120, 0.3);
+    box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.06);
   }
 
   .neon-border-secondary {
-    @apply border border-secondary/30;
-    box-shadow: inset 0 0 12px rgba(0, 255, 204, 0.1);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    box-shadow: inset 0 0 12px rgba(0, 255, 204, 0.06);
   }
 
   .neon-border-tertiary {
-    @apply border border-tertiary/30;
-    box-shadow: inset 0 0 12px rgba(255, 224, 74, 0.1);
+    border: 1px solid rgba(255, 224, 74, 0.3);
+    box-shadow: inset 0 0 12px rgba(255, 224, 74, 0.06);
+  }
+
+  /* ============ CARD STYLES ============ */
+  .card-base {
+    @apply bg-[#0f0f1a] rounded-xl border border-[#1e1e30];
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card-base:hover {
+    border-color: rgba(255, 45, 120, 0.25);
+    box-shadow: 0 0 16px rgba(255, 45, 120, 0.06);
   }
 
   .card-neon {
-    @apply bg-surface-container rounded-xl neon-border-primary;
+    @apply card-base;
+    border-color: rgba(255, 45, 120, 0.2);
+    box-shadow: inset 0 0 16px rgba(255, 45, 120, 0.04);
   }
 
+  .card-neon-secondary {
+    @apply card-base;
+    border-color: rgba(0, 255, 204, 0.2);
+    box-shadow: inset 0 0 16px rgba(0, 255, 204, 0.04);
+  }
+
+  .card-neon-tertiary {
+    @apply card-base;
+    border-color: rgba(255, 224, 74, 0.2);
+    box-shadow: inset 0 0 16px rgba(255, 224, 74, 0.04);
+  }
+
+  /* ============ BUTTON STYLES ============ */
   .btn-neon-primary {
-    @apply bg-primary text-white font-medium px-4 py-2 rounded-lg;
-    @apply hover:shadow-neon-primary transition-shadow duration-200;
+    @apply bg-[#ff2d78] text-white font-semibold px-5 py-2.5 rounded-lg;
+    @apply transition-all duration-200;
+    box-shadow: 0 0 8px rgba(255, 45, 120, 0.3);
   }
 
-  .btn-neon-secondary {
-    @apply bg-surface-container text-secondary border border-secondary/30;
-    @apply hover:shadow-neon-secondary transition-shadow duration-200 font-medium px-4 py-2 rounded-lg;
+  .btn-neon-primary:hover {
+    @apply bg-[#ff4088];
+    box-shadow: 0 0 20px rgba(255, 45, 120, 0.5), 0 0 40px rgba(255, 45, 120, 0.2);
   }
 
+  .btn-ghost-primary {
+    @apply bg-transparent text-[#ff2d78] font-medium px-4 py-2 rounded-lg;
+    @apply border border-[#ff2d78]/40 transition-all duration-200;
+  }
+
+  .btn-ghost-primary:hover {
+    @apply bg-[#ff2d78]/10;
+    box-shadow: 0 0 12px rgba(255, 45, 120, 0.3);
+  }
+
+  .btn-ghost-secondary {
+    @apply bg-transparent text-[#00ffcc] font-medium px-4 py-2 rounded-lg;
+    @apply border border-[#00ffcc]/40 transition-all duration-200;
+  }
+
+  .btn-ghost-secondary:hover {
+    @apply bg-[#00ffcc]/10;
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.3);
+  }
+
+  /* ============ INPUT STYLES ============ */
+  .input-neon {
+    @apply bg-[#141422] border border-[#2a2a3e] rounded-lg px-4 py-2.5;
+    @apply text-white text-sm placeholder-gray-500;
+    @apply focus:border-[#ff2d78]/50 focus:ring-1 focus:ring-[#ff2d78]/30 focus:outline-none;
+    @apply transition-all duration-200;
+  }
+
+  .input-neon:focus {
+    box-shadow: 0 0 8px rgba(255, 45, 120, 0.15);
+  }
+
+  .select-neon {
+    @apply bg-[#141422] border border-[#2a2a3e] rounded-lg px-4 py-2.5;
+    @apply text-white text-sm;
+    @apply focus:border-[#ffe04a]/50 focus:ring-1 focus:ring-[#ffe04a]/30 focus:outline-none;
+    @apply transition-all duration-200;
+  }
+
+  /* ============ SCANLINE BACKGROUND ============ */
   .scanline-bg {
-    background: 
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.1) 2px,
-        rgba(0, 0, 0, 0.1) 4px
-      );
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
   }
 
+  /* ============ NEON GLOW EFFECTS ============ */
+  .neon-glow-primary { text-shadow: 0 0 8px #ff2d78; }
+  .neon-glow-secondary { text-shadow: 0 0 8px #00ffcc; }
+
+  /* ============ SIDEBAR NAV ============ */
   .nav-item {
-    @apply flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg;
-    @apply hover:bg-surface-elevated hover:text-white transition-colors duration-200;
+    @apply flex items-center gap-3 px-4 py-2.5 text-gray-400 rounded-lg text-sm;
+    @apply transition-all duration-200;
+  }
+
+  .nav-item:hover {
+    @apply text-white bg-[#141422];
   }
 
   .nav-item-active {
-    @apply bg-surface-elevated text-primary neon-border-primary;
+    @apply text-[#ff2d78] bg-[#ff2d78]/5;
+    border-left: 3px solid #ff2d78;
+    text-shadow: 0 0 8px rgba(255, 45, 120, 0.4);
   }
 
+  /* ============ STAT TILE ============ */
   .stat-tile {
-    @apply bg-surface-container rounded-xl p-4 neon-border-secondary;
+    @apply bg-[#0f0f1a] rounded-xl p-4 border border-[#1e1e30];
+    @apply transition-all duration-300;
   }
 
-  .input-neon {
-    @apply bg-surface-container border border-surface-border rounded-lg px-4 py-2;
-    @apply text-white placeholder-gray-500;
-    @apply focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none;
-    @apply transition-colors duration-200;
+  .stat-tile:hover {
+    border-color: rgba(0, 255, 204, 0.3);
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.08);
+  }
+
+  /* ============ PROGRESS BAR ============ */
+  .progress-bar {
+    @apply h-2 rounded-full bg-[#141422] overflow-hidden;
+  }
+
+  .progress-bar-fill {
+    @apply h-full rounded-full transition-all duration-500;
+    background: linear-gradient(90deg, #00ffcc, #00e6b8);
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+  }
+
+  /* ============ GLOW ANIMATIONS ============ */
+  @keyframes neon-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 45, 120, 0.3); }
+    50% { box-shadow: 0 0 16px rgba(255, 45, 120, 0.5), 0 0 24px rgba(255, 45, 120, 0.2); }
+  }
+
+  @keyframes glow-text {
+    0%, 100% { text-shadow: 0 0 6px rgba(0, 255, 204, 0.4); }
+    50% { text-shadow: 0 0 12px rgba(0, 255, 204, 0.7), 0 0 20px rgba(0, 255, 204, 0.3); }
+  }
+
+  .animate-neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-glow-text {
+    animation: glow-text 2s ease-in-out infinite;
   }
 }

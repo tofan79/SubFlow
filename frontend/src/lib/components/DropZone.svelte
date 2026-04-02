@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
-	import { EventsOn, WailsEvents } from '$lib/wails/index';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+	import { EventsOn, EventsOff, WailsEvents } from '$lib/wails/index';
 
 	const dispatch = createEventDispatcher();
 	let isDragging = false;
@@ -12,6 +12,12 @@
 					dispatch('file', { path });
 				}
 			});
+		} catch(e) {}
+	});
+
+	onDestroy(() => {
+		try {
+			EventsOff(WailsEvents.FILE_DROPPED);
 		} catch(e) {}
 	});
 
@@ -32,22 +38,31 @@
 			dispatch('file', { file, path: file.path || file.name });
 		}
 	}
+
+	function handleFileInput(e: Event) {
+		const target = e.target as HTMLInputElement;
+		if (target.files && target.files.length > 0) {
+			const file = target.files[0] as File & { path?: string };
+			dispatch('file', { file, path: file.path || file.name });
+		}
+	}
 </script>
 
-<div
-	role="button"
-	tabindex="0"
-	class="w-full border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300
-		{isDragging ? 'border-[#ff2d78] bg-[#ff2d78]/10 shadow-[0_0_20px_#ff2d78] scale-[1.02]' : 'border-[#141422] bg-[#0f0f1a] hover:border-[#00ffcc]/50'}"
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="relative h-full bg-surface-container/60 border-2 border-dashed {isDragging ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(255,45,120,0.2)]' : 'border-primary/40'} rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all hover:border-primary hover:bg-surface-container/80 cursor-pointer"
 	on:dragover={handleDragOver}
 	on:dragleave={handleDragLeave}
 	on:drop={handleDrop}
+	on:click={() => document.getElementById('fileUpload')?.click()}
+	on:keydown={(e) => e.key === 'Enter' && document.getElementById('fileUpload')?.click()}
 >
-	<span class="material-symbols-outlined text-5xl mb-4 {isDragging ? 'text-[#ff2d78]' : 'text-gray-500'}">
-		upload_file
-	</span>
-	<h3 class="text-xl font-bold {isDragging ? 'text-white' : 'text-gray-300'} mb-2">
-		Tarik & Lepas File Video/Audio di Sini
-	</h3>
-	<p class="text-gray-500 text-sm">Atau klik untuk memilih file dari komputer Anda</p>
+	<div class="w-16 h-16 rounded-full flex items-center justify-center mb-6 {isDragging ? 'bg-primary/30 neon-border-primary animate-neon-pulse' : 'bg-primary/20 neon-border-primary'}">
+		<span class="material-symbols-outlined text-primary text-3xl font-bold {isDragging ? 'neon-text-primary' : ''}">upload_file</span>
+	</div>
+	<h2 class="text-2xl font-headline font-bold text-on-surface mb-2">Mulai Proyek Baru</h2>
+	<p class="text-slate-400 max-w-md mb-8">Tarik dan lepas file video atau subtitle di sini untuk memulai proses automasi AI secara instan.</p>
+	<button class="bg-primary hover:bg-primary-container text-on-primary px-8 py-3 rounded-lg font-bold transition-all shadow-[0_0_16px_rgba(255,45,120,0.4)] active:scale-95 pointer-events-none">
+		Pilih File
+	</button>
+	<input id="fileUpload" type="file" class="hidden" accept="video/*,.srt,.vtt,.ass" on:change={handleFileInput} />
 </div>

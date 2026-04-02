@@ -26,7 +26,10 @@ export default {
 					700: '#bc1250',
 					800: '#9a1345',
 					900: '#82143d',
-					DEFAULT: '#ff2d78'
+					DEFAULT: '#ff2d78',
+					container: '#b3004e',
+					fixed: '#ffe0ec',
+					'fixed-dim': '#ff80aa'
 				},
 				secondary: {
 					50: '#e6fffc',
@@ -39,7 +42,10 @@ export default {
 					700: '#00997a',
 					800: '#006652',
 					900: '#003329',
-					DEFAULT: '#00ffcc'
+					DEFAULT: '#00ffcc',
+					container: '#004d3d',
+					fixed: '#c0fff4',
+					'fixed-dim': '#00e6b8'
 				},
 				tertiary: {
 					50: '#fffceb',
@@ -52,15 +58,51 @@ export default {
 					700: '#99862c',
 					800: '#66591e',
 					900: '#332c0f',
-					DEFAULT: '#ffe04a'
+					DEFAULT: '#ffe04a',
+					container: '#665200',
+					fixed: '#fff0c0',
+					'fixed-dim': '#ffe04a'
 				},
 				surface: {
 					background: '#0a0a12',
 					DEFAULT: '#0f0f1a',
 					container: '#141422',
 					elevated: '#1a1a2e',
-					border: '#2a2a3e'
-				}
+					border: '#2a2a3e',
+					dim: '#0f0f1a',
+					bright: '#1a1a2e',
+					'container-lowest': '#0a0a12',
+					'container-low': '#111118',
+					'container-high': '#1e1e30',
+					'container-highest': '#28283e',
+					variant: '#1e1e30',
+					tint: '#ff2d78'
+				},
+				background: '#0a0a12',
+				'on-background': '#e8e0f0',
+				error: '#ff4444',
+				'error-container': '#3d0f0f',
+				'on-error': '#1a0000',
+				'on-error-container': '#ffa0a0',
+				outline: '#5a5068',
+				'outline-variant': '#302840',
+				'on-surface': '#e8e0f0',
+				'on-surface-variant': '#a098b0',
+				'inverse-surface': '#e8e0f0',
+				'inverse-on-surface': '#0a0a12',
+				'inverse-primary': '#8c0038',
+				'on-primary': '#1a0010',
+				'on-primary-container': '#ffe0ec',
+				'on-primary-fixed': '#3d0020',
+				'on-primary-fixed-variant': '#8c0038',
+				'on-secondary': '#001a1a',
+				'on-secondary-container': '#c0fff4',
+				'on-secondary-fixed': '#001a1a',
+				'on-secondary-fixed-variant': '#004d4d',
+				'on-tertiary': '#1a1000',
+				'on-tertiary-container': '#fff0c0',
+				'on-tertiary-fixed': '#1a1000',
+				'on-tertiary-fixed-variant': '#665200'
 			},
 			boxShadow: {
 				'neon-primary': '0 0 12px rgba(255, 45, 120, 0.4), 0 0 24px rgba(255, 45, 120, 0.2)',
