@@ -5,8 +5,8 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-background text-on-background font-sans antialiased selection:bg-primary/30;
+  html, body {
+    @apply bg-background text-on-background font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
   }
 
   ::-webkit-scrollbar {

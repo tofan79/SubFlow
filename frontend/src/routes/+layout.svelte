@@ -78,7 +78,7 @@
 	</nav>
 
 	<!-- Main Content Canvas -->
-	<main class="transition-all duration-300 {isSidebarExpanded ? 'md:ml-64' : 'md:ml-[5.5rem]'} pt-20 p-6 flex-1 w-full bg-transparent z-10 overflow-x-hidden min-h-screen">
+	<main class="transition-all duration-300 {isSidebarExpanded ? 'md:ml-64' : 'md:ml-[5.5rem]'} pt-20 p-6 flex-1 bg-transparent z-10 overflow-x-hidden min-h-screen">
 		<slot />
 	</main>
 
